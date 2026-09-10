@@ -1,11 +1,11 @@
 class Rustcode < Formula
     desc "Local LLM Agent Harness"
     homepage "https://github.com/lhagfoss/rustcode"
-    url "https://github.com/lhagfoss/rustcode/releases/download/v0.51.31/rustcode-macos-aarch64.tar.gz"
-    sha256 "966f214c93e1d4e45ce1e3cddf2d87b4a3f3acd44cd29466ae62776f8c8a53d1"
+    url "https://github.com/lhagfoss/rustcode/releases/download/v0.51.32/rustcode-macos-aarch64.tar.gz"
+    sha256 "4d7b40639d904809b58038313d9f1e0253dc8411f21edea77dfbefe3927e7266"
     depends_on arch: :arm64
 
-    version "0.51.31"
+    version "0.51.32"
 
     def install
         bin.install "rustcode-macos-aarch64" => "rustcode"
