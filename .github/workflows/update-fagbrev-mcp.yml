@@ -50,7 +50,7 @@ jobs:
 
           asset_sha() {
             local name="$1"
-            awk -v name="$name" '$2 == name { print $1; exit }' <<< "$checksums"
+            awk -v name="$name" '$2 == name || $2 == "./" name { print $1; exit }' <<< "$checksums"
           }
 
           mac_name="fagbrev-mcp-${version}-aarch64-apple-darwin.tar.gz"
