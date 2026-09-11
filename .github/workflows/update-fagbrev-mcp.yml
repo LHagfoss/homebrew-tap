@@ -1,0 +1,124 @@
+name: Update Fagbrev MCP formula
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-fagbrev-mcp
+  cancel-in-progress: true
+
+jobs:
+  update:
+    name: Check latest Fagbrev release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out tap
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update formula when a newer release exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          api_url="https://api.github.com/repos/LHagfoss/Fagbrev_MCP/releases/latest"
+          release_json="$(mktemp)"
+          trap 'rm -f "$release_json"' EXIT
+          curl --fail --silent --show-error --location \
+            --header "Accept: application/vnd.github+json" \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "$api_url" > "$release_json"
+
+          tag="$(jq -er '.tag_name | select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+([.-][0-9A-Za-z.-]+)?$"))' "$release_json")"
+          version="${tag#v}"
+          checksums_url="$(jq -er '.assets[] | select(.name == "SHA256SUMS") | .browser_download_url' "$release_json")"
+          checksums="$(curl --fail --silent --show-error --location "$checksums_url")"
+
+          asset_url() {
+            jq -er --arg name "$1" '.assets[] | select(.name == $name) | .browser_download_url' "$release_json"
+          }
+
+          asset_sha() {
+            local name="$1"
+            awk -v name="$name" '$2 == name { print $1; exit }' <<< "$checksums"
+          }
+
+          mac_name="fagbrev-mcp-${version}-aarch64-apple-darwin.tar.gz"
+          linux_name="fagbrev-mcp-${version}-x86_64-unknown-linux-gnu.tar.gz"
+          mac_url="$(asset_url "$mac_name")"
+          linux_url="$(asset_url "$linux_name")"
+          mac_sha="$(asset_sha "$mac_name")"
+          linux_sha="$(asset_sha "$linux_name")"
+
+          [[ "$mac_sha" =~ ^[0-9a-f]{64}$ ]] || { echo "Missing checksum for $mac_name" >&2; exit 1; }
+          [[ "$linux_sha" =~ ^[0-9a-f]{64}$ ]] || { echo "Missing checksum for $linux_name" >&2; exit 1; }
+
+          python3 - "Formula/fagbrev-mcp.rb" "$version" "$mac_url" "$mac_sha" "$linux_url" "$linux_sha" <<'PY'
+          from pathlib import Path
+          import sys
+
+          path, version, mac_url, mac_sha, linux_url, linux_sha = sys.argv[1:]
+          Path(path).write_text(f'''class FagbrevMcp < Formula
+            desc "Local MCP server for a Fagbrev.io apprenticeship dashboard"
+            homepage "https://github.com/LHagfoss/Fagbrev_MCP"
+            version "{version}"
+
+            on_macos do
+              if Hardware::CPU.arm?
+                url "{mac_url}"
+                sha256 "{mac_sha}"
+              else
+                odie "fagbrev-mcp currently provides a macOS Apple Silicon binary"
+              end
+            end
+
+            on_linux do
+              if Hardware::CPU.intel?
+                url "{linux_url}"
+                sha256 "{linux_sha}"
+              else
+                odie "fagbrev-mcp currently provides a Linux x86_64 binary"
+              end
+            end
+
+            def install
+              bin.install "fagbrev-mcp"
+            end
+
+            test do
+              assert_match "fagbrev", shell_output("#{{bin}}/fagbrev-mcp --help")
+            end
+          end
+          ''')
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          branch="automation/update-fagbrev-mcp"
+          git checkout -B "$branch"
+          git add Formula/fagbrev-mcp.rb
+          if git diff --cached --quiet; then
+            echo "Formula is already current at $tag"
+            exit 0
+          fi
+
+          git commit -m "fagbrev-mcp ${version}"
+          git push --force origin "$branch"
+          existing_pr="$(gh pr list --head "$branch" --json number --jq '.[0].number // empty')"
+          if [[ -n "$existing_pr" ]]; then
+            gh pr edit "$existing_pr" --title "fagbrev-mcp ${version}" --body "Update Fagbrev MCP Homebrew formula to ${tag}."
+          else
+            gh pr create --base main --head "$branch" \
+              --title "fagbrev-mcp ${version}" \
+              --body "Update Fagbrev MCP Homebrew formula to ${tag}."
+          fi
