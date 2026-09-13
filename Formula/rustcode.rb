@@ -1,3 +1,13 @@
-class Q\İÛÙH›Ü›][Bˆ\ØÈ“ØØ[HYÙ[B†&æW72 ¢†öÖWvR&‡GG3¢òöv—F‡V"æ6öÒöÆ†vf÷72÷ÍÑ½‘”ˆ(€€€ÕÉ°€‰¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½±¡…foss/rustcode/releases/download/v0.51.43/rustcode-macos-aarch64-\‹—¢ ¢6†#Sb&ƒsFc#s6#Cc#3VCsc“C33CVC&fc3SCc&C6S†S#6f63#C“cVCFF6vS“’ ¢FWVæG5ööâ&6ƒ¢¦&Óc@ ¢fW'6–öâ#ãSãC2  ¢FVb–ç7FÆÀ¢&–âæ–ÍÑ…±°€‰ÉÕÍÑ½‘”µµ…½Ìµ……É ØĞˆ€ôø€‰Åstcode"
+class Rustcode < Formula
+    desc "Local LLM Agent Harness"
+    homepage "https://github.com/lhagfoss/rustcode"
+    url "https://github.com/lhagfoss/rustcode/releases/download/v0.51.43/rustcode-macos-aarch64.tar.gz"
+    sha256 "a874f271cab46235d76940331415d2ff35462d1ce8e23afcc2491f5d4dca7e99"
+    depends_on arch: :arm64
+
+    version "0.51.43"
+
+    def install
+        bin.install "rustcode-macos-aarch64" => "rustcode"
     end
 end
