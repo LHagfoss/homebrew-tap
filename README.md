@@ -9,5 +9,5 @@ brew install fagbrev-mcp
 
 To check for a newer Fagbrev MCP release, run the
 `Update Fagbrev MCP formula` workflow manually in GitHub Actions. It reads
-the latest public release, verifies the checksums from `SHA256SUMS`, and
+the latest public release, reads the checksums from `SHA256SUMS`, and
 attempts to open a pull request when the formula changes.
