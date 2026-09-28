@@ -7,7 +7,7 @@ brew tap LHagfoss/tap
 brew install fagbrev-mcp
 ```
 
-The Fagbrev MCP formula is updated by the scheduled workflow in
-`.github/workflows/update-fagbrev-mcp.yml`. It reads the latest public release,
-verifies the checksums from `SHA256SUMS`, and opens a pull request when a new
-version is available.
+To check for a newer Fagbrev MCP release, run the
+`Update Fagbrev MCP formula` workflow manually in GitHub Actions. It reads
+the latest public release, verifies the checksums from `SHA256SUMS`, and
+attempts to open a pull request when the formula changes.
