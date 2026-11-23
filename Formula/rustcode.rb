@@ -1,22 +1,22 @@
 class Rustcode < Formula
     desc "RustCode orchestrator CLI (rc) and standalone terminal harness (rustcode)"
     homepage "https://github.com/lhagfoss/rustcode"
-    url "https://github.com/lhagfoss/rustcode/releases/download/v1.49.0/rc-macos-aarch64.tar.gz"
-    sha256 "be152fce55d94bbcdad477952a51fe0c6debb16478c211bd1078cf673487b2b5"
+    url "https://github.com/lhagfoss/rustcode/releases/download/v1.50.0/rc-macos-aarch64.tar.gz"
+    sha256 "6984a9961d6ae634991fa86f3b58111d2110122dc8fb893d55507498c180db76"
     depends_on arch: :arm64
 
-    version "1.49.0"
+    version "1.50.0"
 
     resource "harness" do
-        url "https://github.com/lhagfoss/rustcode/releases/download/v1.49.0/rustcode-macos-aarch64.tar.gz"
-        sha256 "64587836bf55979fc1c946ec3a354f175608d097915cadfe32d39c81fc4833a8"
+        url "https://github.com/lhagfoss/rustcode/releases/download/v1.50.0/rustcode-macos-aarch64.tar.gz"
+        sha256 "f8e4f61df8c35ace5cb418394fd51d97c571c9c575a8f0e11e0df3cc1a928262"
     end
 
     # The web app a hub serves, found by the engine in
     # share/rustcode/web beside its bin/.
     resource "web" do
-        url "https://github.com/lhagfoss/rustcode/releases/download/v1.49.0/rustcode-web.tar.gz"
-        sha256 "94ab19bc70661c05eb726af86814b9d62280704ed0bb02f38423cc83cc289d2c"
+        url "https://github.com/lhagfoss/rustcode/releases/download/v1.50.0/rustcode-web.tar.gz"
+        sha256 "dfcedd7f4a4089c5e8b1967e0a81234f24a8b1565e7e71a7d479bb6a95332d18"
     end
 
     def install
